@@ -1,9 +1,9 @@
 # Join-ify
-### Shopify Data Engineering Challenge - Summer 2018
+## Shopify Data Engineering Challenge - Summer 2018
 
 Join-ify is a simple joiner built with Python, with Pandas at it's core. Throw any two json files at it and it'll take care of the rest.
 
-### Install
+## Install
 🔥 up your terminal and follow the instructions below.
 
 Make sure pandas is installed. If it isn't, just run
@@ -25,12 +25,13 @@ and finally, change the joiner file's permission by running
 
 That's it, you're all set!
 
-### Usage
+## Usage
 > $ ./joiner {join type (inner/left/right/outer)} {left table (json file)} {right table (json file)} {key from left table} {key from right table}
 
 Example:
 > $ ./joiner inner customers.json orders.json cid customer_id
 
+Output:
 ```
 ---------------INNER JOIN--------------
    cid    name  customer_id  oid  price
