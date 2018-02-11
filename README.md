@@ -31,25 +31,26 @@ That's it, you're all set!
 Example:
 > $ ./joiner inner customers.json orders.json cid customer_id
 
->---------------INNER JOIN--------------
->   cid    name  customer_id  oid  price
->0    1   Barry            1    1    2.5
->1    1   Barry            1    7   10.0
->2    2    Todd            2    4    2.0
->3    3   Steve            3    2    5.0
->4    3   Steve            3    3    2.0
->5    5  Rodney            5    6    4.0
->---------------------------------------
->Result count:  6
->Rows skipped on left:  0
->Rows skipped on right:  1
->Result: 
-> [[1 'Barry' 1 1 2.5]
-> [1 'Barry' 1 7 10.0]
-> [2 'Todd' 2 4 2.0]
-> [3 'Steve' 3 2 5.0]
-> [3 'Steve' 3 3 2.0]
-> [5 'Rodney' 5 6 4.0]]
-
+```
+---------------INNER JOIN--------------
+   cid    name  customer_id  oid  price
+0    1   Barry            1    1    2.5
+1    1   Barry            1    7   10.0
+2    2    Todd            2    4    2.0
+3    3   Steve            3    2    5.0
+4    3   Steve            3    3    2.0
+5    5  Rodney            5    6    4.0
+---------------------------------------
+Result count:  6
+Rows skipped on left:  0
+Rows skipped on right:  1
+Result: 
+ [[1 'Barry' 1 1 2.5]
+ [1 'Barry' 1 7 10.0]
+ [2 'Todd' 2 4 2.0]
+ [3 'Steve' 3 2 5.0]
+ [3 'Steve' 3 3 2.0]
+ [5 'Rodney' 5 6 4.0]]
+```
 
 
