@@ -31,7 +31,7 @@ That's it, you're all set!
 Example:
 > $ ./joiner inner customers.json orders.json cid customer_id
 
-'''
+>
 ---------------INNER JOIN--------------
    cid    name  customer_id  oid  price
 0    1   Barry            1    1    2.5
@@ -51,8 +51,6 @@ Result:
  [3 'Steve' 3 2 5.0]
  [3 'Steve' 3 3 2.0]
  [5 'Rodney' 5 6 4.0]]
-
-'''
 
 
 
