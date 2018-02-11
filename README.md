@@ -20,7 +20,7 @@ and access the directory
 Create a virtual environemnt in your directory, **if _needed_** by running
 > source venv/bin/activate
 
-and finally, change the joiner file's permission by running
+and finally, change the joiner file permissions by running
 > chmod +x joiner
 
 That's it, you're all set!
