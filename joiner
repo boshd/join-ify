@@ -1,0 +1,188 @@
+#! /usr/bin/env python
+import sys, getopt, json, argparse, math, subprocess
+import pandas as pd
+import numpy as np
+
+# PROGRAM USAGE: $ ./joiner {join type (inner/left/right/outer)} {left table (json file)} 
+#				          {right table (json file)} {key from left table} {key from right table}
+# EXAMPLE:		 $ ./joiner inner customers.json orders.json cid customer_id
+#				 											  ^ 	  ^ 
+#														Here it is mandatory to use 
+#														TWO keys because both files 
+#														do not have matching headers
+#
+# *** ALSO DO NOT FORGET TO EXECUTE "chmod +x joiner" in order to use it like above! ***
+# *** and also "source venv/bin/activate" in order to activate a virtual environment in you directory ***
+
+'''
+
+OUTPUT OF JOIN:
+
+$ ./joiner inner customers.json orders.json cid customer_id
+
+---------------INNER JOIN--------------
+   cid    name  customer_id  oid  price
+0    1   Barry            1    1    2.5
+1    1   Barry            1    7   10.0
+2    2    Todd            2    4    2.0
+3    3   Steve            3    2    5.0
+4    3   Steve            3    3    2.0
+5    5  Rodney            5    6    4.0
+-----------------------------------------
+Result count:  6
+Rows skipped on left:  0
+Rows skipped on right:  1
+Result: 
+ [[1 'Barry' 1 1 2.5]
+ [1 'Barry' 1 7 10.0]
+ [2 'Todd' 2 4 2.0]
+ [3 'Steve' 3 2 5.0]
+ [3 'Steve' 3 3 2.0]
+ [5 'Rodney' 5 6 4.0]]
+
+
+'''
+
+def pre_process(file):
+	# preprocesses input file data and creates dataframes
+
+	c_data = json.load(file)
+	df = pd.DataFrame(c_data)
+
+	return df
+
+def skippedOnLeft(l_df,j_df):
+	# Checks for skipped rows or rows that did not join in left table
+	
+	r = len(l_df.index) - len(j_df.index)
+
+	# checks if r is less than 0, if so returns 0
+
+	if r >= 0:
+		return r
+
+	return 0 
+
+def skippedOnRight(r_df,j_df):
+	# Checks for skipped rows or rows that did not join in right table
+	
+	r = len(r_df.index) - len(j_df.index)
+
+	# checks if r is less than 0, if so returns 0
+
+	if r >= 0:
+		return r
+
+	return 0
+
+def stats(l_df,r_df,j_df):
+    result_count       = len(j_df.index)
+    rows_skipped_left  = skippedOnLeft(l_df,j_df)
+    rows_skipped_right = skippedOnRight(r_df,j_df)
+    result             = j_df.values
+
+    print("Result count: ", result_count)
+    print("Rows skipped on left: ", rows_skipped_left)
+    print("Rows skipped on right: ", rows_skipped_right)
+    print("Result: \n", result)
+    print("\n")
+
+
+def inner(l_df,r_df,key1,key2):
+	# INNER JOIN USING PD.MERGE
+	ij_df = pd.merge(l_df, r_df, left_on=[key1], right_on=[key2], how='inner')
+	result_arr = ij_df.values # Creates array from the inner join dataframe
+	print("\n---------------INNER JOIN--------------")
+	print(ij_df)
+	print("-----------------------------------------")
+	stats(l_df,r_df,ij_df)
+
+
+def left(l_df,r_df,key1,key2):
+	# LEFT OR LEFT-OUTER JOIN USING PD.MERGE
+	lj_df = pd.merge(l_df, r_df, left_on=[key1], right_on=[key2], how='left')
+	result_arr = lj_df.values # Creates array from the left join dataframe
+	print("\n---------------LEFT JOIN---------------")
+	print(lj_df)
+	print("-----------------------------------------")
+	stats(l_df,r_df,lj_df)
+
+
+def right(l_df,r_df,key1,key2):
+	# RIGHT OR RIGHT-OUTER JOIN USING PD.MERGE
+	rj_df = pd.merge(l_df, r_df, left_on=[key1], right_on=[key2], how='right')
+	result_arr = rj_df.values # Creates array from the right join dataframe
+	print("\n---------------RIGHT JOIN---------------")
+	print(rj_df)
+	print("------------------------------------------")
+	stats(l_df,r_df,rj_df)
+
+
+def outer(l_df,r_df,key1,key2):
+	# OUTER JOIN USING PD.MERGE
+	oj_df = pd.merge(l_df, r_df, left_on=[key1], right_on=[key2], how='outer')
+	result_arr = oj_df.values # Creates array from the outer join dataframe
+	print("\n---------------OUTER JOIN---------------")
+	print(oj_df)
+	print("------------------------------------------")
+	stats(l_df,r_df,oj_df)
+
+def check_key(key,df):
+	# Checks if key exists in table or not
+	
+    x = list(df)
+
+    for i in range(len(x)):
+	    if key == x[i]:
+		    return 1
+
+    return 0
+
+def main():
+	# Main program
+	# Uses argparse to parse arguments and take in the "join type", "json file 1", "json file 2", left key" and "right key"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("join_type")
+    parser.add_argument('left_table')
+    parser.add_argument('right_table')
+    parser.add_argument('key_1')
+    parser.add_argument('key_2')
+    args = parser.parse_args()
+
+    # Parses arguments for json files and throws them at the "pre_process" method
+    with open(args.left_table) as file:
+    	l_df = pre_process(file)
+    with open(args.right_table) as file:
+    	r_df = pre_process(file)
+  
+  	# Parses main program arguemnts for keys used in join operation
+    key1 = args.key_1 
+    key2 = args.key_2
+
+    # Checks if keys are correct using check_key method
+    if check_key(key1,l_df) == 0:
+        print("Invalid key name. Key doesn't exist in any of the tables!")
+        sys.exit()
+
+    if check_key(key2,r_df) == 0:
+        print("Invalid key name. Key doesn't exist in any of the tables!")
+        sys.exit()
+    	
+
+    # Parses main program arguments for join type, identifies it and calls join method while passing
+    # the table dataframes and keys as arguments
+    if args.join_type == 'inner':
+    	inner(l_df,r_df,key1,key2)
+    elif args.join_type == 'left':
+   		left(l_df,r_df,key1,key2)
+    elif args.join_type == 'right':
+    	right(l_df,r_df,key1,key2)
+    elif args.join_type == 'outer':
+    	outer(l_df,r_df,key1,key2)
+    else:
+    	print("Invalid join type. Inner/left/right/outer")
+    	sys.exit()
+
+# Calls main program
+if __name__ == "__main__":
+    main()
